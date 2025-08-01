@@ -1,0 +1,40 @@
+[package]
+name = "crush-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+config = "0.13"
+dirs = "5.0"
+clap = { version = "4.0", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1.0"
+thiserror = "1.0"
+lsp-types = "0.94"
+async-trait = "0.1"
+futures = "0.3"
+ratatui = "0.24"
+crossterm = "0.27"
+#
+# #
+# # ```
+
+# This configuration includes:
+# - Tokio for async runtime
+# - Reqwest for HTTP requests to LLM APIs
+# - Serde for JSON serialization
+# - Config for configuration management
+# - Dirs for accessing config directories
+# - Clap for command-line parsing
+# - Tracing for logging
+# - LSP-types for Language Server Protocol support
+# - Ratatui and Crossterm for terminal UI
+
+# Now let's create the main project structure.
+# ```
+#

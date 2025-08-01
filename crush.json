@@ -1,0 +1,140 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "lsp": {
+    "go": {
+      "command": "gopls"
+    },
+    "rust": {
+      "command": "rust-analyzer"
+    },
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"]
+    }
+  },
+  "mcp": {
+    "filesystem": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/path/to/filesystem-mcp.js"]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.example.com/mcp/github",
+      "headers": {
+        "Authorization": "$(echo Bearer $GITHUB_TOKEN)"
+      }
+    }
+  },
+  "providers": {
+    "deepseek": {
+      "type": "deepseek",
+      "base_url": "https://api.deepseek.com/v1",
+      "api_key": "$DEEPSEEK_API_KEY",
+      "models": [
+        {
+          "id": "deepseek-chat",
+          "name": "Deepseek V3",
+          "cost_per_1m_in": 0.27,
+          "cost_per_1m_out": 1.1,
+          "context_window": 64000,
+          "default_max_tokens": 5000
+        }
+      ]
+    },
+    "kimi": {
+      "type": "kimi",
+      "base_url": "https://api.moonshot.cn/v1",
+      "api_key": "$KIMI_API_KEY",
+      "models": [
+        {
+          "id": "moonshot-v1-8k",
+          "name": "Kimi 8K",
+          "cost_per_1m_in": 12.0,
+          "cost_per_1m_out": 12.0,
+          "context_window": 8000,
+          "default_max_tokens": 2000
+        },
+        {
+          "id": "moonshot-v1-32k",
+          "name": "Kimi 32K",
+          "cost_per_1m_in": 24.0,
+          "cost_per_1m_out": 24.0,
+          "context_window": 32000,
+          "default_max_tokens": 8000
+        }
+      ]
+    },
+    "gemini": {
+      "type": "gemini",
+      "api_key": "$GEMINI_API_KEY",
+      "models": [
+        {
+          "id": "gemini-1.5-pro",
+          "name": "Gemini 1.5 Pro",
+          "cost_per_1m_in": 3.5,
+          "cost_per_1m_out": 10.5,
+          "context_window": 2000000,
+          "default_max_tokens": 8192
+        },
+        {
+          "id": "gemini-1.5-flash",
+          "name": "Gemini 1.5 Flash",
+          "cost_per_1m_in": 0.075,
+          "cost_per_1m_out": 0.3,
+          "context_window": 1000000,
+          "default_max_tokens": 8192
+        }
+      ]
+    },
+    "ollama": {
+      "type": "ollama",
+      "base_url": "http://localhost:11434",
+      "models": [
+        {
+          "id": "llama3.2",
+          "name": "Llama 3.2",
+          "cost_per_1m_in": 0.0,
+          "cost_per_1m_out": 0.0,
+          "context_window": 128000,
+          "default_max_tokens": 4096
+        },
+        {
+          "id": "qwen2.5-coder",
+          "name": "Qwen 2.5 Coder",
+          "cost_per_1m_in": 0.0,
+          "cost_per_1m_out": 0.0,
+          "context_window": 32768,
+          "default_max_tokens": 8192
+        }
+      ]
+    },
+    "anthropic": {
+      "type": "anthropic",
+      "base_url": "https://api.anthropic.com/v1",
+      "api_key": "$ANTHROPIC_API_KEY",
+      "extra_headers": {
+        "anthropic-version": "2023-06-01"
+      },
+      "models": [
+        {
+          "id": "claude-3-sonnet-20240229",
+          "name": "Claude Sonnet 3",
+          "cost_per_1m_in": 3.0,
+          "cost_per_1m_out": 15.0,
+          "context_window": 200000,
+          "default_max_tokens": 50000,
+          "can_reason": true,
+          "supports_attachments": true
+        }
+      ]
+    }
+  },
+  "permissions": {
+    "allowed_tools": ["view", "ls", "grep", "edit"]
+  },
+  "options": {
+    "debug": false,
+    "debug_lsp": false
+  }
+}
