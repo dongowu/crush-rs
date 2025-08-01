@@ -1,0 +1,190 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            exe: .exe
+            archive_ext: zip
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            exe: ""
+            archive_ext: tar.gz
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            exe: ""
+            archive_ext: tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            exe: ""
+            archive_ext: tar.gz
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Setup Rust cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.target }}-
+            ${{ runner.os }}-cargo-
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Create release archive
+        shell: bash
+        run: |
+          # Set variables
+          binary_name="crush${{ matrix.exe }}"
+          dirname="crush-rs-${{ matrix.target }}"
+
+          # Create release directory
+          mkdir -p "$dirname"
+
+          # Copy binary
+          cp "target/${{ matrix.target }}/release/$binary_name" "$dirname/"
+
+          # Copy documentation and configuration files
+          cp README.md "$dirname/"
+          cp SETUP.md "$dirname/"
+          cp SETUP_CN.md "$dirname/"
+          cp config.example.json "$dirname/"
+          cp ERROR_HANDLING.md "$dirname/"
+
+          # Create platform-specific archive
+          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
+            7z a "$dirname.zip" "$dirname"
+            echo "ARCHIVE_FILE=$dirname.zip" >> $GITHUB_ENV
+          else
+            tar -czf "$dirname.tar.gz" "$dirname"
+            echo "ARCHIVE_FILE=$dirname.tar.gz" >> $GITHUB_ENV
+          fi
+
+          echo "ARCHIVE_NAME=$dirname" >> $GITHUB_ENV
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crush-rs-${{ matrix.target }}
+          path: ${{ env.ARCHIVE_FILE }}
+          retention-days: 5
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          find artifacts -name '*.zip' -o -name '*.tar.gz' | while read file; do
+            cp "$file" release-assets/
+          done
+          ls -la release-assets/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          generate_release_notes: true
+          body: |
+            # 🦀💘 Crush-RS ${{ github.ref_name }}
+
+            > A glamorous AI coding agent for your terminal, written in Rust!
+
+            ## 📦 Platform Downloads
+
+            | Platform | Architecture | Download |
+            |----------|-------------|----------|
+            | **Windows** | x64 | `crush-rs-x86_64-pc-windows-msvc.zip` |
+            | **Linux** | x64 | `crush-rs-x86_64-unknown-linux-gnu.tar.gz` |
+            | **macOS** | Intel | `crush-rs-x86_64-apple-darwin.tar.gz` |
+            | **macOS** | Apple Silicon | `crush-rs-aarch64-apple-darwin.tar.gz` |
+
+            ## 🚀 Quick Start
+
+            1. **Download** the appropriate file for your platform above
+            2. **Extract** the archive to your desired location
+            3. **Follow** the SETUP guides included in the download
+            4. **Set API keys** (choose your preferred providers):
+               ```bash
+               # Windows
+               set DEEPSEEK_API_KEY=your-key-here
+               set OPENAI_API_KEY=your-key-here
+
+               # Linux/macOS
+               export DEEPSEEK_API_KEY="your-key-here"
+               export OPENAI_API_KEY="your-key-here"
+               ```
+            5. **Run** `crush` and start coding! 🎯
+
+            ## ✨ Key Features
+
+            - 🤖 **Multi-LLM Support** - OpenAI, Anthropic, DeepSeek, Ollama, Kimi2
+            - 🎨 **Interactive UI** - Beautiful terminal provider selection
+            - 💬 **Session Management** - Persistent conversations
+            - 🔧 **Smart Tools** - Safe command execution with permissions
+            - 🛡️ **Security First** - YOLO mode for power users
+            - ⚡ **Cross-Platform** - Windows, macOS, Linux support
+
+            ## 📚 Documentation Included
+
+            Each download contains:
+            - 📖 `README.md` - Complete documentation
+            - 🚀 `SETUP.md` / `SETUP_CN.md` - Setup guides (EN/CN)
+            - ⚙️ `config.example.json` - Configuration template
+            - 🔧 `ERROR_HANDLING.md` - Troubleshooting guide
+
+            ## 🆘 Support & Community
+
+            - 🐛 [Report Issues](https://github.com/${{ github.repository }}/issues)
+            - 💬 [Discussions](https://github.com/${{ github.repository }}/discussions)
+            - 📖 [Documentation](https://github.com/${{ github.repository }}#readme)
+
+            ---
+
+            **Happy coding with Crush-RS! 🦀✨**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
