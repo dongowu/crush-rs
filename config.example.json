@@ -1,0 +1,40 @@
+{
+  "default_provider": null,
+  "providers": {
+    "openai": {
+      "api_type": "OpenAI",
+      "api_key": null,
+      "base_url": "https://api.openai.com/v1",
+      "model": "gpt-4"
+    },
+    "anthropic": {
+      "api_type": "Anthropic",
+      "api_key": null,
+      "base_url": "https://api.anthropic.com/v1",
+      "model": "claude-3-sonnet-20240229"
+    },
+    "deepseek": {
+      "api_type": "OpenAI",
+      "api_key": null,
+      "base_url": "https://api.deepseek.com/v1",
+      "model": "deepseek-chat"
+    },
+    "ollama": {
+      "api_type": "OpenAI",
+      "api_key": null,
+      "base_url": "http://localhost:11434/v1",
+      "model": "llama3.2"
+    },
+    "kimi2": {
+      "api_type": "OpenAI",
+      "api_key": null,
+      "base_url": "https://api.moonshot.cn/v1",
+      "model": "moonshot-v1-8k"
+    }
+  },
+  "global_settings": {
+    "auto_approve_safe_tools": false,
+    "max_tokens": 4000,
+    "temperature": 0.7
+  }
+}

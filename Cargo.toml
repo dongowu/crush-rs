@@ -1,0 +1,25 @@
+[package]
+name = "crush-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "A glamorous AI coding agent for your terminal"
+license = "MIT"
+
+[[bin]]
+name = "crush"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.11", features = ["json"] }
+anyhow = "1.0"
+dialoguer = "0.11"
+colored = "2.0"
+dirs = "5.0"
+uuid = { version = "1.0", features = ["v4"] }
+crossterm = "0.27"
+chrono = { version = "0.4", features = ["serde"] }
